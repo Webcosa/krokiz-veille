@@ -1,0 +1,24 @@
+# Toutes les 10 minutes : le serveur Krokiz compare Stripe et Shopify, recrée
+# une commande manquante depuis sa copie Stripe, rafraîchit le suivi des colis
+# et alerte en cas d'anomalie. Rien n'est affiché ici : seul le code HTTP compte.
+name: Veille Krokiz
+on:
+  schedule:
+    - cron: "*/10 * * * *"
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  veille:
+    runs-on: ubuntu-latest
+    timeout-minutes: 2
+    steps:
+      - name: Appeler la veille
+        env:
+          CRON_SECRET: ${{ secrets.CRON_SECRET }}
+        run: |
+          code=$(curl -s -o /dev/null -w '%{http_code}' --max-time 60 \
+            https://serveur-krokiz.vercel.app/api/veille \
+            -H "Authorization: Bearer $CRON_SECRET")
+          echo "Réponse : $code"
+          test "$code" = "200"

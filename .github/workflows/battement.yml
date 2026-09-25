@@ -1,0 +1,19 @@
+# GitHub suspend les tâches planifiées d'un dépôt resté 60 jours sans activité :
+# un commit vide par semaine garde la veille en marche.
+name: Battement
+on:
+  schedule:
+    - cron: "17 6 * * 1"
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  battement:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: |
+          git config user.name "krokiz-veille"
+          git config user.email "krokiz-veille@users.noreply.github.com"
+          git commit --allow-empty -m "Battement $(date -u +%F)"
+          git push
